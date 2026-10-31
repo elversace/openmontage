@@ -1,0 +1,38 @@
+name: ChatGPT MCP bridge checks
+
+on:
+  push:
+    branches:
+      - chatgpt-mcp-integration
+    paths:
+      - "chatgpt_mcp/**"
+      - "lib/**"
+      - "backlot/**"
+      - "pipeline_defs/**"
+      - "schemas/**"
+      - "tools/**"
+      - "setup.py"
+      - "requirements.txt"
+      - "tests/test_chatgpt_mcp_bridge.py"
+      - ".github/workflows/chatgpt-mcp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install OpenMontage
+        run: python -m pip install -e .
+      - name: Compile MCP bridge
+        run: python -m compileall -q chatgpt_mcp
+      - name: Run offline bridge and pipeline smoke tests
+        run: python -m unittest discover -s tests -p "test_chatgpt_mcp_bridge.py" -v
