@@ -10,6 +10,7 @@ from lib.paths import REPO_ROOT
 from lib.pipeline_loader import load_pipeline
 from lib.checkpoint import init_project
 from tools.tool_registry import registry
+from tools.base_tool import BaseTool
 
 mcp = FastMCP("OpenMontage", instructions=(
     "You are the production orchestrator. Run preflight, initialize a project, "
@@ -28,6 +29,15 @@ def _project_dir(project_id: str) -> Path:
     if candidate.parent != root or not candidate.is_dir():
         raise ValueError("Project not found.")
     return candidate
+
+def _dry_run_quote(tool: Any, inputs: dict[str, Any]) -> dict[str, Any]:
+    """Fail closed when API-backed tools inherit the base zero-cost placeholder."""
+    quote = _dry_run_quote(tool, inputs)
+    if tool.runtime.value in {"api", "hybrid"} and type(tool).estimate_cost is BaseTool.estimate_cost:
+        quote["estimated_cost_usd"] = None
+        quote["cost_status"] = "quote_required"
+        quote["quote_reason"] = "This API-backed tool has no explicit cost estimator."
+    return quote
 
 def _safe(value: Any) -> Any:
     if hasattr(value, "__dataclass_fields__"):
@@ -115,7 +125,7 @@ def estimate_production_tool(tool_name: str, inputs: dict[str, Any]) -> dict[str
     if tool is None: raise ValueError("Unknown registered tool.")
     tool.check_dependencies()
     if tool.input_schema: jsonschema.validate(instance=inputs, schema=tool.input_schema)
-    return _safe(tool.dry_run(inputs))
+    return _safe(_dry_run_quote(tool, inputs))
 
 @mcp.tool()
 def execute_production_tool(tool_name: str, inputs: dict[str, Any], user_approved: bool, user_approved_cost_usd: float = 0.0) -> dict[str, Any]:
