@@ -32,7 +32,7 @@ def _project_dir(project_id: str) -> Path:
 
 def _dry_run_quote(tool: Any, inputs: dict[str, Any]) -> dict[str, Any]:
     """Fail closed when API-backed tools inherit the base zero-cost placeholder."""
-    quote = _dry_run_quote(tool, inputs)
+    quote = tool.dry_run(inputs)
     if tool.runtime.value in {"api", "hybrid"} and type(tool).estimate_cost is BaseTool.estimate_cost:
         quote["estimated_cost_usd"] = None
         quote["cost_status"] = "quote_required"
