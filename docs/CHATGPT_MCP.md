@@ -14,7 +14,7 @@ This branch exposes the OpenMontage pipeline system to an MCP-capable AI client.
 ### Production execution
 - `initialize_production(project_id, title, pipeline_id, style_playbook?)` — creates the project workspace only. It does not generate media or spend money.
 - `estimate_production_tool(tool_name, inputs)` — validates tool inputs and checks dependencies/cost without executing.
-- `execute_production_tool(tool_name, inputs, user_approved_cost_usd)` — executes one registered OpenMontage tool. It rechecks dependencies, validates the input schema, obtains a fresh dry-run estimate, and refuses execution if the quote is unavailable or exceeds the supplied user-approved ceiling.
+- `execute_production_tool(tool_name, inputs, user_approved, user_approved_cost_usd)` — executes one registered OpenMontage tool only when explicit approval is true. It rechecks dependencies, validates the input schema, obtains a fresh dry-run estimate, and refuses execution if the quote is unavailable or exceeds the supplied user-approved ceiling. Explicit approval is required even for tools estimated at $0.
 
 ## Required orchestration sequence
 
@@ -49,7 +49,7 @@ A ChatGPT custom MCP connection needs a reachable HTTPS MCP endpoint or secure t
 - Project IDs are restricted to lowercase kebab-case and project paths are resolved beneath the configured projects directory.
 - Tool names are validated and only tools discovered in the OpenMontage registry can execute.
 - Tool inputs are validated against each registered input schema when one exists.
-- Execution requires a fresh dry-run quote and a user-approved USD ceiling. Unknown quotes and estimates above that ceiling are rejected.
+- Execution requires an explicit approval flag, a fresh dry-run quote, and a user-approved USD ceiling. Unknown quotes and estimates above that ceiling are rejected; approval is required even for tools estimated at $0.
 - Secrets are filtered from returned tool metadata/results; environment files and secret values are never intentionally exposed.
 - The MCP server must remain private. Do not expose stdio directly or publish an unauthenticated HTTP endpoint.
 - Tool execution can still trigger external provider charges up to the approved ceiling. The caller must obtain user approval before invoking it.
