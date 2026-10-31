@@ -49,7 +49,7 @@ A ChatGPT custom MCP connection needs a reachable HTTPS MCP endpoint or secure t
 - Project IDs are restricted to lowercase kebab-case and project paths are resolved beneath the configured projects directory.
 - Tool names are validated and only tools discovered in the OpenMontage registry can execute.
 - Tool inputs are validated against each registered input schema when one exists.
-- Execution requires an explicit approval flag, a fresh dry-run quote, and a user-approved USD ceiling. Unknown quotes and estimates above that ceiling are rejected; approval is required even for tools estimated at $0.
+- Execution requires an explicit approval flag, a fresh dry-run quote, and a user-approved USD ceiling. Unknown quotes and estimates above that ceiling are rejected; approval is required even for tools estimated at $0. API/hybrid tools that inherit the base placeholder cost of $0 are treated as unquoted and blocked until they implement an explicit estimator.
 - Secrets are filtered from returned tool metadata/results; environment files and secret values are never intentionally exposed.
 - The MCP server must remain private. Do not expose stdio directly or publish an unauthenticated HTTP endpoint.
 - Tool execution can still trigger external provider charges up to the approved ceiling. The caller must obtain user approval before invoking it.
