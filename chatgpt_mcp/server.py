@@ -118,8 +118,9 @@ def estimate_production_tool(tool_name: str, inputs: dict[str, Any]) -> dict[str
     return _safe(tool.dry_run(inputs))
 
 @mcp.tool()
-def execute_production_tool(tool_name: str, inputs: dict[str, Any], user_approved_cost_usd: float = 0.0) -> dict[str, Any]:
-    """Execute one registered tool only after a fresh estimate and explicit user-approved USD ceiling."""
+def execute_production_tool(tool_name: str, inputs: dict[str, Any], user_approved: bool, user_approved_cost_usd: float = 0.0) -> dict[str, Any]:
+    """Execute one registered tool only after explicit user approval and a fresh approved USD ceiling."""
+    if user_approved is not True: raise PermissionError("Explicit user approval is required for every execution, including free tools.")
     if not _TOOL_NAME.fullmatch(tool_name): raise ValueError("Invalid tool name.")
     if user_approved_cost_usd < 0: raise ValueError("Approval ceiling cannot be negative.")
     registry.ensure_discovered()
