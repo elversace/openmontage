@@ -15,6 +15,6 @@ setup(
         "requests>=2.31",
         "google-genai>=1.0.0",
         "openai>=2.44.0",
-        "mcp>=1.0.0",
+        "mcp>=1.0.0,<2.0.0",
     ],
 )
