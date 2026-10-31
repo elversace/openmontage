@@ -138,7 +138,7 @@ def execute_production_tool(tool_name: str, inputs: dict[str, Any], user_approve
     if tool is None: raise ValueError("Unknown registered tool.")
     tool.check_dependencies()
     if tool.input_schema: jsonschema.validate(instance=inputs, schema=tool.input_schema)
-    quote = tool.dry_run(inputs)
+    quote = _dry_run_quote(tool, inputs)
     estimate = quote.get("estimated_cost_usd")
     if estimate is None: raise ValueError("Reliable quote unavailable; execution blocked.")
     if float(estimate) > float(user_approved_cost_usd):
